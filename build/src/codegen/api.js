@@ -89,6 +89,7 @@ export const getOperations = (openapi, openapiId, openapiUrl, operationIds) => {
         !openapi ||
         !openapi.paths ||
         typeof openapi.paths !== "object") {
+        console.log("getOperaitons invalid input");
         return;
     }
     const allowedMethods = [

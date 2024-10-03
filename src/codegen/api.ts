@@ -219,6 +219,7 @@ export const getOperations = (
     !openapi.paths ||
     typeof openapi.paths !== "object"
   ) {
+    console.log("getOperaitons invalid input");
     return;
   }
 

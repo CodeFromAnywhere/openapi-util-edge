@@ -82,6 +82,7 @@ export const getSemanticOpenapi = (
   );
 
   if (!parsedOperations) {
+    console.log("No parsed operations");
     return;
   }
 

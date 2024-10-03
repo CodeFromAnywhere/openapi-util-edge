@@ -47,6 +47,7 @@ export const parsedOperationToSemanticOperationSchema = (parsedOperation) => {
 export const getSemanticOpenapi = (openapi, openapiUrl, operationIds) => {
     const parsedOperations = getOperations(openapi, openapiUrl, openapiUrl, operationIds);
     if (!parsedOperations) {
+        console.log("No parsed operations");
         return;
     }
     const semanticOperationSchemas = parsedOperations.map(parsedOperationToSemanticOperationSchema);
