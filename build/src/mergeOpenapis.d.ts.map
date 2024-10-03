@@ -1,0 +1,1 @@
+{"version":3,"file":"mergeOpenapis.d.ts","sourceRoot":"","sources":["../../src/mergeOpenapis.ts"],"names":[],"mappings":"AAAA,OAAO,EAAsB,eAAe,EAAE,MAAM,WAAW,CAAC;AAMhE,eAAO,MAAM,aAAa,YAAmB;IAC3C,WAAW,EAAE;QACX,UAAU,EAAE,MAAM,CAAC;QACnB,YAAY,CAAC,EAAE,MAAM,EAAE,CAAC;KACzB,EAAE,CAAC;CACL,yCAmFA,CAAC"}

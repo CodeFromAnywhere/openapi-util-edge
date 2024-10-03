@@ -1,0 +1,17 @@
+{
+  "$schema": "https://migrate.actionschema.com/migration-context.schema.json",
+  "agentConfig": {
+    "agents": {
+      "getOpenapiCombination": {
+        "operationIds": ["searchOpenapis", "summarizeOpenapi"]
+      },
+      "writeEndpoint": {
+        "operationIds": ["mergeOpenapis"]
+      }
+    },
+    
+    "openapiUrl": "https://openapi-util.actionschema.com/openapi.json",
+    "relativeAgentBasePath": "public/agents",
+    "slugPrefix": "openapi-util-"
+  }
+}

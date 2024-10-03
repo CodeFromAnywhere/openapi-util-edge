@@ -1,0 +1,4 @@
+{
+  "$schema": "https://openapi-util.actionschema.com/getSemanticOpenapi?openapiUrl=https://openapi.actionschema.com/convertapi/openapi.json",
+  "download": { "input": { "download": "attachment" }, "output": {} }
+}

@@ -1,0 +1,748 @@
+{
+  "openapi": "3.1.0",
+  "$schema": "https://ref.actionschema.com/openapi.json",
+  "x-actionschema": "0.0.1",
+  "info": {
+    "title": "API Specification",
+    "version": "1.0.0",
+    "description": "API specification for util endpoints surrounding the OpenAPI standard"
+  },
+  "security": [{ "oauth2": [] }],
+  "servers": [{ "url": "https://openapi-util.actionschema.com" }],
+  "paths": {
+    "/fetchUrl": {
+      "get": {
+        "operationId": "fetchUrl",
+        "summary": "Fetch content from a URL",
+        "description": "Fetches content from the specified URL and returns it with the appropriate content type",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The URL to fetch content from"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "No URL specified",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/summarizeOpenapi": {
+      "get": {
+        "summary": "Retrieve OpenAPI operation summary",
+        "description": "Fetches and processes an OpenAPI specification, returning operationId/summary pairs grouped by tags",
+        "parameters": [
+          {
+            "name": "openapiUrl",
+            "in": "query",
+            "description": "URL of the OpenAPI specification to process",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "operationId": {
+                        "type": "string"
+                      },
+                      "summary": {
+                        "type": "string"
+                      },
+                      "tagName": {
+                        "type": "string"
+                      },
+                      "tagDescription": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getOperationRequestInit": {
+      "post": {
+        "summary": "Generate operation request initialization data",
+        "operationId": "getOperationRequestInit",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["openapiUrl", "operationId"],
+                "properties": {
+                  "openapiUrl": {
+                    "type": "string",
+                    "description": "URL of the OpenAPI specification"
+                  },
+                  "operationId": {
+                    "type": "string",
+                    "description": "ID of the operation"
+                  },
+                  "access_token": {
+                    "type": "string",
+                    "description": "Access token for authentication (optional)"
+                  },
+                  "data": {
+                    "description": "Combined data (flat object)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "body": { "type": "string" },
+                    "headers": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "method": {
+                      "type": "string",
+                      "enum": [
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "PATCH",
+                        "HEAD",
+                        "OPTIONS",
+                        "TRACE"
+                      ]
+                    },
+
+                    "bodyObject": {}
+                  },
+                  "required": ["url", "headers", "method"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/semanticOpenapiToTypescript": {
+      "get": {
+        "summary": "Convert Semantic OpenAPI to TypeScript",
+        "description": "Fetches a semantic OpenAPI from the provided URL and converts it to TypeScript definitions",
+        "operationId": "semanticOpenapiToTypescript",
+        "parameters": [
+          {
+            "name": "semanticOpenapiUrl",
+            "in": "query",
+            "required": true,
+            "description": "URL of the JSON schema to convert",
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful conversion",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Schema could not be fetched",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getSemanticOpenapi": {
+      "get": {
+        "summary": "Convert OpenAPI to Semantic OpenAPI",
+        "description": "Fetches an OpenAPI specification from a given URL and converts it to a semantic OpenAPI format, which is a JSON Schema. Due to the nature of this endpoint, JSONSchemas can be used as $schema source in any JSON object, which can be useful to view their URL.",
+        "operationId": "getSemanticOpenapi",
+        "parameters": [
+          {
+            "name": "openapiUrl",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "URL of the OpenAPI specification to convert"
+          },
+          {
+            "name": "operationIds",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Comma-separated list of operationIds you want"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful conversion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://ref.actionschema.com/actionschema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "OpenAPI specification not found or could not be retrieved",
+            "content": {
+              "text/plain": { "schema": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "/openapiCombinationToSdkConfig": {
+      "post": {
+        "operationId": "openapiCombinationToSdkConfig",
+        "summary": "Generate SDK configurations",
+        "description": "Generates SDK configurations based on OpenAPI combinations",
+
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "combination": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "openapiUrl": {
+                          "type": "string"
+                        },
+                        "operationIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": ["openapiUrl"]
+                    }
+                  }
+                },
+                "required": ["combination"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "slug": {
+                        "type": "string"
+                      },
+                      "envKeyName": {
+                        "type": "string"
+                      },
+                      "openapiUrl": {
+                        "type": "string"
+                      },
+                      "operationIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": ["slug", "envKeyName", "openapiUrl"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/getOpenapiCombination": {
+      "post": {
+        "operationId": "getOpenapiCombination",
+        "summary": "Message an agent to combine openapis into a set of endpoints",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MessageRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "openapiUrl": { "type": "string" },
+                    "operationIds": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/writeEndpoint": {
+      "post": {
+        "operationId": "writeEndpoint",
+        "summary": "Message an agent to write an endpoint for you",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MessageRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "string" },
+                    "secrets": {
+                      "description": "Key value of env variables",
+                      "type": "object",
+                      "additionalProperties": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mergeOpenapis": {
+      "post": {
+        "summary": "Merge OpenAPIs",
+        "description": "Merges Subsets of OpenAPIs into one new openapi.",
+        "operationId": "mergeOpenapis",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "openapiList": {
+                    "$ref": "#/components/schemas/OpenapiCombinationArray"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "getMergedOpenapi",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "uri" },
+            "description": "Can put multiple encoded URLs with operationIds provided in query params, comma seaparated."
+          }
+        ],
+        "description": "With this function you can get a merged openapi directly using a simple GET URL. The syntax is as follows: /mergeOpenapis?url={encodedUrl}&url={encodedUrl}\n\n This way you can put multiple encoded URLs.\n\n Also each URL may contain a query param ?operationIds={ids} where the ids are comma seaparated operationId's.",
+        "summary": "Return a merged OpenAPI",
+        "responses": {
+          "404": {
+            "description": "OpenAPIs not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OpenAPI merged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://ref.actionschema.com/openapi.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/generateSdk": {
+      "post": {
+        "summary": "Generate SDK",
+        "description": "Generates a single SDK for multiple (subsets of) OpenAPI specifications",
+        "operationId": "generateSdk",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateSdkContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateSdkResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pruneOpenapi": {
+      "get": {
+        "summary": "Prune OpenAPI Specification",
+        "description": "Get a pruned OpenAPI specification that is dereferenced and only contains the specified operationIds.",
+        "operationId": "pruneOpenapi",
+        "parameters": [
+          {
+            "name": "openapiUrl",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL of the OpenAPI specification to prune"
+          },
+          {
+            "name": "operationIds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated list of operationIds to include in the pruned specification"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "info": {
+                      "type": "object",
+                      "properties": { "title": { "type": "string" } }
+                    }
+                  }
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "OpenAPI specification not found"
+          },
+          "422": {
+            "description": "Missing required parameters"
+          }
+        }
+      }
+    }
+  },
+
+  "components": {
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://auth.actionschema.com/oauth/github/login",
+            "tokenUrl": "https://auth.actionschema.com/oauth/access_token",
+            "scopes": {
+              "admin": "Full access to all services"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "MessageRequest": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "threadId": {
+            "type": "string",
+            "description": "Can be specified to open a specific thread without history, and continue on that thread upon consequent messages. If no threadId is specified, will take the history of the first thread"
+          },
+          "disableHistory": {
+            "type": "boolean",
+            "description": "If given, will not use thread history messages regardless of the threadId."
+          },
+          "attachmentUrls": {
+            "description": "Urls to files. Not all models support all file types.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "GenerateSdkContext": {
+        "type": "object",
+        "required": ["openapis"],
+        "properties": {
+          "openapis": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["envKeyName", "openapiUrl", "slug"],
+              "properties": {
+                "slug": {
+                  "type": "string",
+                  "description": "Used as prefix for the operation (e.g. `sdk.userCrud.create`). If not given, can be inferred from `openapi.info.title` or, if not existent, from `openapiUrl`"
+                },
+                "envKeyName": {
+                  "type": "string"
+                },
+                "operationIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "If given, will only put this subset in the SDK"
+                },
+                "openapiUrl": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "OpenapiList": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/OpenapiListItem" }
+      },
+      "OpenapiListItem": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "name": { "type": "string" },
+          "categoryStack": { "type": "array", "items": { "type": "string" } },
+          "description": { "type": "string" },
+          "region": { "type": "string" },
+          "ratelimit": { "type": "string" },
+          "pricing": { "type": "string" },
+          "embeddedDescription": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "GenerateSdkResponse": {
+        "type": "object",
+        "required": ["files"],
+        "properties": {
+          "files": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      },
+      "OpenapiCombinationArray": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "openapiUrl": { "type": "string" },
+            "operationIds": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAPI Endpoint Form</title>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-purple-50 to-indigo-100 min-h-screen p-8">
+    <div><a href="index.html">Home</a> | <a href="merge.html">Merge</a> | <a href="agents.html">Agents</a></div>
+
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="p-8">
+            <h1 class="text-3xl font-bold mb-6 text-indigo-700">OpenAPI Endpoint Form</h1>
+            <form id="apiForm" class="space-y-6">
+                <div>
+                    <label for="endpoint" class="block text-sm font-medium text-gray-700 mb-1">Select Endpoint:</label>
+                    <select id="endpoint" name="endpoint"
+                        class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500 transition-colors duration-200">
+                        <option value="getOpenapiCombination">getOpenapiCombination</option>
+                        <option value="writeEndpoint">writeEndpoint</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message:</label>
+                    <textarea id="message" name="message" rows="4"
+                        class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500 transition-colors duration-200"
+                        placeholder="Enter your message here..."></textarea>
+                </div>
+                <div>
+                    <button type="submit"
+                        class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition-colors duration-200">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div id="response" class="p-8 bg-gray-50 border-t border-gray-200">
+            <p class="text-gray-500 text-center italic">Response will appear here</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('apiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const endpoint = document.getElementById('endpoint').value;
+            const message = document.getElementById('message').value;
+            const responseDiv = document.getElementById('response');
+
+            responseDiv.innerHTML = '<p class="text-gray-500 text-center">Loading...</p>';
+
+            try {
+                const response = await fetch(`https://openapi-util.actionschema.com/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+
+                const data = await response.json();
+                responseDiv.innerHTML = '';
+
+                if (endpoint === 'getOpenapiCombination') {
+                    responseDiv.innerHTML += `
+                        <div class="mb-4 p-4 bg-white rounded-lg shadow-md border border-indigo-100">
+                            <p class="font-semibold text-indigo-700 mb-2">OpenAPI URL:</p>
+                            <p class="break-all text-gray-700">${data.openapiUrl}</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg shadow-md border border-indigo-100">
+                            <p class="font-semibold text-indigo-700 mb-2">Operation IDs:</p>
+                            <ul class="list-disc list-inside text-gray-700">
+                                ${data.operationIds.map(id => `<li>${id}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else if (endpoint === 'writeEndpoint') {
+                    responseDiv.innerHTML += `
+                        <div class="mb-4 p-4 bg-white rounded-lg shadow-md border border-indigo-100">
+                            <p class="font-semibold text-indigo-700 mb-2">Code:</p>
+                            <pre class="whitespace-pre-wrap text-gray-700 bg-gray-50 p-2 rounded">${data.code}</pre>
+                        </div>
+                    `;
+                    if (data.secrets) {
+                        responseDiv.innerHTML += `
+                            <div class="p-4 bg-white rounded-lg shadow-md border border-indigo-100">
+                                <p class="font-semibold text-indigo-700 mb-2">Secrets:</p>
+                                <ul class="list-disc list-inside text-gray-700">
+                                    ${Object.entries(data.secrets).map(([key, value]) => `<li><span class="font-medium">${key}:</span> ${value}</li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `<p class="text-red-500 text-center font-semibold">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+
+</html>

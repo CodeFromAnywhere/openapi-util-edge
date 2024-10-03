@@ -1,0 +1,26 @@
+{
+  "name": "openapi-util-edge",
+  "description": "Same as openapi-util but fully edge-compatible",
+  "type": "module",
+  "main": "build/src/index.js",
+  "version": "0.0.163",
+  "scripts": {
+    "up": "npm version patch -f",
+    "pub": "npm run up && npm publish && git add . && git commit -m 'improvements' && git push"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/json-schema": "^7.0.15",
+    "@types/node": "^20.14.10",
+    "@types/web": "^0.0.111"
+  },
+  "license": "ISC",
+  "bin": {},
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "json-ptr": "^3.1.1",
+    "json-schema": "^0.4.0",
+    "json-schema-to-typescript": "^15.0.0",
+    "openapi-types": "^12.1.3"
+  }
+}

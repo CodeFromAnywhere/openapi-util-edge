@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "description": "A way to easily generate code inside your project",
+  "properties": {
+    "prompts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Will be available with cli via codegen {name}"
+          },
+
+          "scope": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of glob patterns for the ai to add as context for this prompt."
+          },
+
+          "destination": {
+            "type": "string",
+            "description": "(Relative) path to put the resulting code or text."
+          },
+
+          "prompt": {
+            "type": "string",
+            "description": "You can use these variables in your prompt: \n- ${scope}: the scope of files.\n- ${previous}: The previous version of the file at destination.\n- ${message}: extra message that was present in the cli."
+          },
+          "promptSuffix": { "type": "string" }
+        }
+      }
+    }
+  }
+}

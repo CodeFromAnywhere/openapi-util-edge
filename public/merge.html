@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAPI URL Merger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto p-8 bg-white rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold mb-6 text-center">OpenAPI URL Merger</h1>
+        <form id="urlForm" class="space-y-4">
+            <div id="urlInputs">
+                <div class="flex space-x-2 mb-2">
+                    <input type="url" name="url[]" placeholder="OpenAPI URL" class="flex-grow p-2 border rounded"
+                        required>
+                    <input type="text" name="operationIds[]" placeholder="OperationIDs (comma-separated)"
+                        class="flex-grow p-2 border rounded">
+                    <button type="button" class="remove-url bg-red-500 text-white p-2 rounded" style="display: none;"><i
+                            class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <button type="button" id="addUrl" class="bg-blue-500 text-white p-2 rounded w-full"><i
+                    class="fas fa-plus mr-2"></i>Add URL</button>
+            <button type="submit" class="bg-green-500 text-white p-2 rounded w-full"><i
+                    class="fas fa-paper-plane mr-2"></i>Merge OpenAPIs</button>
+        </form>
+
+        <div class="mt-4 text-center">
+            <button id="shareButton" class="bg-blue-400 text-white p-2 rounded"><i class="fab fa-twitter mr-2"></i>Share
+                on Twitter</button>
+        </div>
+        <div class="mt-4 text-center">
+            <button id="settingsButton" class="bg-gray-300 text-gray-700 p-2 rounded"><i
+                    class="fas fa-cog mr-2"></i>Settings</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white p-8 rounded-lg">
+            <h2 class="text-2xl font-bold mb-4">Settings</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="defaultUrl" class="block mb-1">Default URL:</label>
+                    <input type="url" id="defaultUrl" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label for="defaultOperationIds" class="block mb-1">Default OperationIDs:</label>
+                    <input type="text" id="defaultOperationIds" class="w-full p-2 border rounded">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-2">
+                <button id="saveSettings" class="bg-green-500 text-white p-2 rounded">Save</button>
+                <button id="closeSettings" class="bg-gray-300 text-gray-700 p-2 rounded">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load settings from localStorage
+        const defaultUrl = localStorage.getItem('defaultUrl') || '';
+        const defaultOperationIds = localStorage.getItem('defaultOperationIds') || '';
+
+        // Set initial values
+        document.querySelector('input[name="url[]"]').value = defaultUrl;
+        document.querySelector('input[name="operationIds[]"]').value = defaultOperationIds;
+
+        // Add URL input
+        document.getElementById('addUrl').addEventListener('click', () => {
+            const urlInputs = document.getElementById('urlInputs');
+            const newInput = urlInputs.children[0].cloneNode(true);
+            newInput.querySelector('input[name="url[]"]').value = '';
+            newInput.querySelector('input[name="operationIds[]"]').value = '';
+            newInput.querySelector('.remove-url').style.display = 'block';
+            urlInputs.appendChild(newInput);
+        });
+
+        // Remove URL input
+        document.getElementById('urlInputs').addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-url') || e.target.closest('.remove-url')) {
+                e.target.closest('.flex').remove();
+            }
+        });
+
+        // Form submission
+        document.getElementById('urlForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const urls = Array.from(document.querySelectorAll('input[name="url[]"]')).map(input => input.value);
+            const operationIds = Array.from(document.querySelectorAll('input[name="operationIds[]"]')).map(input => input.value);
+
+            const params = urls.map((url, index) => {
+                const encodedUrl = encodeURIComponent(url);
+                const encodedOperationIds = encodeURIComponent(operationIds[index]);
+                return `url=${encodedUrl}${encodedOperationIds ? `?operationIds=${encodedOperationIds}` : ''}`;
+            }).join('&');
+
+
+            window.location.href = `/mergeOpenapis?${params}`;
+        });
+
+        // Share button
+        document.getElementById('shareButton').addEventListener('click', () => {
+            const text = encodeURIComponent('Check out this awesome OpenAPI URL Merger!');
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        });
+
+        // Settings
+        const settingsModal = document.getElementById('settingsModal');
+        const settingsButton = document.getElementById('settingsButton');
+        const closeSettings = document.getElementById('closeSettings');
+        const saveSettings = document.getElementById('saveSettings');
+
+        settingsButton.addEventListener('click', () => {
+            document.getElementById('defaultUrl').value = localStorage.getItem('defaultUrl') || '';
+            document.getElementById('defaultOperationIds').value = localStorage.getItem('defaultOperationIds') || '';
+            settingsModal.classList.remove('hidden');
+            settingsModal.classList.add('flex');
+        });
+
+        closeSettings.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('flex');
+        });
+
+        saveSettings.addEventListener('click', () => {
+            const newDefaultUrl = document.getElementById('defaultUrl').value;
+            const newDefaultOperationIds = document.getElementById('defaultOperationIds').value;
+            localStorage.setItem('defaultUrl', newDefaultUrl);
+            localStorage.setItem('defaultOperationIds', newDefaultOperationIds);
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('flex');
+
+            // Update the first input fields with new default values
+            document.querySelector('input[name="url[]"]').value = newDefaultUrl;
+            document.querySelector('input[name="operationIds[]"]').value = newDefaultOperationIds;
+        });
+    </script>
+</body>
+
+</html>
