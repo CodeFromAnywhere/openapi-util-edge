@@ -3,7 +3,7 @@
   "description": "Same as openapi-util but fully edge-compatible",
   "type": "module",
   "main": "build/src/index.js",
-  "version": "0.0.163",
+  "version": "0.0.164",
   "scripts": {
     "up": "npm version patch -f",
     "pub": "npm run up && npm publish && git add . && git commit -m 'improvements' && git push"
